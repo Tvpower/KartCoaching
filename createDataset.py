@@ -1,9 +1,5 @@
-import torch
-from torch.utils.data import Dataset, DataLoader
-from PIL import Image
 import json
-import os
-from transformers import AutoImageProcessor
+from torch.utils.data import Dataset
 
 class GoKartDataset(Dataset):
     def __init__(self, json_file, image_dir, processor):
@@ -77,3 +73,6 @@ class GoKartDataset(Dataset):
         print(f"loaded {len(self.data)} training samples from {len(set([d['frame'] for d in self.data]))} unique frames")
         print(f"samples yes points :) : {sum(1 for d in self.data if d['has_point'])}")
         print(f"samples no points >:( : {sum(1 for d in self.data if not d['has_point'])}")
+
+    def __len__(self):
+        return len(self.data)

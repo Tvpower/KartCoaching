@@ -1,0 +1,36 @@
+
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# Virtual environment
+.venv/
+venv/
+ENV/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IDE settings
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Project specific
+data/images/*
+data/annotations/*
+!data/images/.gitkeep
+!data/annotations/.gitkeep
+
+# Logs
+*.log
+
+# Local configuration
+.env
