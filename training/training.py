@@ -10,7 +10,7 @@ from model.coachModel import GoKartCoachModel
 
 # setup
 processor = AutoImageProcessor.from_pretrained("facebook/dinov3-vitl16-pretrain-lvd1689m")
-dataset = GoKartDataset("default.json", "data/images", processor)
+dataset = GoKartDataset("data/annotations/default.json", "data/annotations", processor)
 
 # Train/val split (80/20)
 indices = list(range(len(dataset)))
@@ -26,7 +26,7 @@ print(f"Train samples: {len(train_dataset)}")
 print(f"Val samples: {len(val_dataset)}")
 
 # Initialize model
-model = GoKartCoachModel().cuda()
+model = GoKartCoachModel("facebook/dinov3-vitl16-pretrain-lvd1689m").cuda()
 optimizer = AdamW(model.parameters(), lr=1e-4, weight_decay=0.01)
 
 # Loss function

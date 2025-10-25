@@ -43,14 +43,14 @@ class GoKartCoachModel(nn.Module):
             nn.Linear(feature_dim, 256),
             nn.ReLU(),
             nn.Dropout(0.3),
-            nn.Linear(256, 2)
+            nn.Linear(256, 3)
         )
-        # Head 4: Racing pints type (Turn_in/Apex/Exit)
+        # Head 4: Racing pints type (Turn_in/Apex/Exit/None)
         self.point_classifier = nn.Sequential(
             nn.Linear(feature_dim, 512),
             nn.ReLU(),
             nn.Dropout(0.3),
-            nn.Linear(256, 3)
+            nn.Linear(512, 4)
         )
 
         self.coord_regressor = nn.Sequential(
@@ -59,16 +59,17 @@ class GoKartCoachModel(nn.Module):
             nn.Dropout(0.3),
             nn.Linear(512, 2)
         )
-        def forward(self, pixel_values):
-            # Extract features from dinov3
-            with torch.no_grad():
-                outputs = self.dinov3(pixel_values)
-                features = outputs.last_hidden_state[:, 0] #CLS token
-            # Multi-head predictions
-            segment_type_logits = self.segment_type_head(features)
-            curve_number_logits = self.curve_number_head(features)
-            direction_logits = self.direction_head(features)
-            point_logits = self.point_classifier(features)
-            coords = self.coord_regressor(features)
 
-            return segment_type_logits, curve_number_logits, direction_logits, point_logits, coords
+    def forward(self, pixel_values):
+        # Extract features from dinov3
+        with torch.no_grad():
+            outputs = self.dinov3(pixel_values)
+            features = outputs.last_hidden_state[:, 0] #CLS token
+        # Multi-head predictions
+        segment_type_logits = self.segment_type_head(features)
+        curve_number_logits = self.curve_number_head(features)
+        direction_logits = self.direction_head(features)
+        point_logits = self.point_classifier(features)
+        coords = self.coord_regressor(features)
+
+        return segment_type_logits, curve_number_logits, direction_logits, point_logits, coords

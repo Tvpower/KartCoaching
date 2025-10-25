@@ -1,5 +1,8 @@
 import json
+import os
+from PIL import Image
 from torch.utils.data import Dataset
+import torch
 
 class GoKartDataset(Dataset):
     def __init__(self, json_file, image_dir, processor):
@@ -19,6 +22,7 @@ class GoKartDataset(Dataset):
 
         self.segment_type_map = {'Curve': 0, 'Straight': 1, 'Race_Start': 2}
         self.direction_map = {'Left': 0, 'Right': 1, 'Unknown': 2}
+        self.point_label_map = {'Turn_in': 0, 'Apex': 1, 'Exit': 2, 'None': 3}
 
         # parse the data - only keep frames with annotations
         self.data = []
@@ -27,7 +31,7 @@ class GoKartDataset(Dataset):
                 continue
 
             frame_num = item['attr']['frame']
-            image_path = item['img']['path']
+            image_path = item['image']['path']
 
             #Extract the track segment attributes and points
             tracks_attrs = None
@@ -35,7 +39,8 @@ class GoKartDataset(Dataset):
 
             for ann in item['annotations']:
                 if ann['type'] == 'label': #track segment
-                    tracks_attrs = ann['attr']
+                    # For label annotations, attributes might be in the annotation itself
+                    tracks_attrs = ann.get('attributes', {})
                 elif ann['type'] == 'points':   #turn_in/apex/exit
                     label_name = self.label_map[ann['label_id']]
                     points_data.append({
@@ -76,3 +81,27 @@ class GoKartDataset(Dataset):
 
     def __len__(self):
         return len(self.data)
+    
+    def __getitem__(self, idx):
+        item = self.data[idx]
+        
+        # Load and process image
+        img_path = os.path.join("data/images/default", item['img_path'])
+        image = Image.open(img_path).convert('RGB')
+        pixel_values = self.processor(image, return_tensors="pt")['pixel_values'].squeeze(0)
+        
+        # Convert labels to tensors
+        segment_type = torch.tensor(self.segment_type_map.get(item['segment_type'], 2), dtype=torch.long)
+        curve_number = torch.tensor(max(0, min(13, item['curve_number'] - 1)), dtype=torch.long)  # 1-14 -> 0-13
+        direction = torch.tensor(self.direction_map.get(item['direction'], 2), dtype=torch.long)
+        point_label = torch.tensor(self.point_label_map.get(item['point_label'], 3), dtype=torch.long)
+        coords = torch.tensor([item['x'], item['y']], dtype=torch.float32)
+        
+        return {
+            'pixel_val': pixel_values,
+            'segment_type': segment_type,
+            'curve_number': curve_number,
+            'direction': direction,
+            'point_label': point_label,
+            'coords': coords
+        }
