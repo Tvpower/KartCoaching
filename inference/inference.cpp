@@ -61,76 +61,54 @@ torch::Tensor GoKartInference::prepcessFrame(const cv::Mat& frame) {
 
 Prediction GoKartInference::predict(const cv::Mat& frame) {
     try {
-        std::cout << "    [1] Starting preprocessing..." << std::endl;
         torch::Tensor input = prepcessFrame(frame);
-        std::cout << "    [2] Preprocessing complete. Tensor shape: "
-                  << input.sizes() << " Device: " << input.device() << std::endl;
 
-        std::cout << "    [3] Preparing model inputs..." << std::endl;
+
         std::vector<torch::jit::IValue> inputs;
-        inputs.push_back(input);
 
-        std::cout << "    [4] Running model forward pass..." << std::endl;
         auto output = model_.forward(inputs).toTuple();
-        std::cout << "    [5] Forward pass complete!" << std::endl;
 
         //parse outputs
-        std::cout << "    [6] Parsing outputs..." << std::endl;
         auto segment_type = output->elements()[0].toTensor();
         auto curve_number = output->elements()[1].toTensor();
         auto direction = output->elements()[2].toTensor();
         auto point_class_tensor = output->elements()[3].toTensor();
         auto coords_tensor = output->elements()[4].toTensor();
-        std::cout << "    [7] Outputs parsed!" << std::endl;
 
         Prediction result;
 
         // Segment type
-        std::cout << "    [8] Processing segment type..." << std::endl;
         auto segment_probs = torch::softmax(segment_type, 1);
         auto segment_idx = std::get<1>(segment_probs.max(1)).cpu().item<int>();
         std::vector<std::string> segment_labels = {"Curve", "Straight", "Race_Start"};
         result.segment_type = segment_labels[segment_idx];
 
         // Curve number
-        std::cout << "    [9] Processing curve number..." << std::endl;
         auto curve_idx = std::get<1>(torch::max(curve_number, 1)).cpu().item<int>();
         result.curve_number = curve_idx + 1;
 
-        std::cout << "    [10] Processing direction..." << std::endl;
         auto direction_idx = std::get<1>(torch::max(direction, 1)).cpu().item<int>();
         result.direction = direction_idx == 0 ? "Left" : "Right";
 
-        std::cout << "    [11] Processing point type..." << std::endl;
         auto point_probs = torch::softmax(point_class_tensor, 1);
-        std::cout << "    [11a] Softmax complete, point_probs shape: " << point_probs.sizes() << std::endl;
 
         auto point_max_result = torch::max(point_probs, 1);
-        std::cout << "    [11b] Max computed" << std::endl;
 
         auto point_idx_tensor = std::get<1>(point_max_result);
-        std::cout << "    [11c] Index tensor extracted, shape: " << point_idx_tensor.sizes() << std::endl;
 
         auto point_idx = point_idx_tensor.cpu().item<int>();
-        std::cout << "    [11d] Index converted to int: " << point_idx << std::endl;
 
         std::vector<std::string> point_types = {"None", "Turn_in", "Apex", "Exit"};
         result.point_type = point_types[point_idx];
-        std::cout << "    [11e] Point type assigned: " << result.point_type << std::endl;
 
-        std::cout << "    [11f] Getting confidence, point_probs shape: " << point_probs.sizes() << std::endl;
         auto confidence_tensor = point_probs[0][point_idx];
-        std::cout << "    [11g] Confidence tensor extracted" << std::endl;
 
         result.confidence = confidence_tensor.cpu().item<float>();
-        std::cout << "    [11h] Confidence: " << result.confidence << std::endl;
 
-        std::cout << "    [12] Processing coordinates..." << std::endl;
         auto coords = coords_tensor.cpu();
         result.x_coord = coords[0][0].item<float>();
         result.y_coord = coords[0][1].item<float>();
 
-        std::cout << "    [13] Prediction complete!" << std::endl;
         return result;
 
     } catch (const std::exception& e) {
@@ -205,10 +183,8 @@ void GoKartInference::processVideo(const std::string &video_path, const std::str
 
             auto result = predict(frame);
 
-            std::cout << "  Prediction complete, drawing..." << std::endl;
             drawPrediction(frame, result);
 
-            std::cout << "  Writing frame..." << std::endl;
             writer.write(frame);
 
             frame_count++;
