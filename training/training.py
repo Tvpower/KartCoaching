@@ -114,6 +114,6 @@ for epoch in range(num_epochs):
     if avg_val_loss < best_val_loss:
         best_val_loss = avg_val_loss
         torch.save(model.state_dict(), "best_model.pth")
-        print(f"THIS BIH READY YOU GONNA HAVE TO TEST IT YA BASTARD")
+        print(f"EPOCH DONE GO TO THE NEXT ONE")
 
 print("My misery will be mine, and only mine!")

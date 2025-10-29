@@ -3,7 +3,7 @@ from transformers import AutoModel
 import torch
 
 class GoKartCoachModel(nn.Module):
-    def __init__(self, model_nam, feature_dim = 1024):
+    def __init__(self, feature_dim = 1024):
         super().__init__()
 
         # Load frozen DinoV3-ViT-L/16
