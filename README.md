@@ -4,7 +4,7 @@ A computer vision system for analyzing go-kart racing lines and identifying crit
 
 ## Overview
 
-This project combines a frozen DINOv2 vision transformer backbone with a custom multi-head architecture to analyze racing footage. It processes video frames to identify track characteristics and optimal racing points, providing real-time coaching feedback.
+This project combines a frozen DINOv3 vision transformer backbone with a custom multi-head architecture to analyze racing footage. It processes video frames to identify track characteristics and optimal racing points, providing real-time coaching feedback.
 
 ## Model Architecture
 
@@ -73,7 +73,7 @@ pip install -r requirements.txt
 
 **Key Dependencies**:
 - `torch` - PyTorch framework
-- `transformers` - Hugging Face for DINOv2 model
+- `transformers` - Hugging Face for DINOv3 model
 - `pillow` - Image processing
 - `scikit-learn` - Train/val splitting
 - `numpy`, `scipy` - Numerical operations
