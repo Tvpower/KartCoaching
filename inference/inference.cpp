@@ -63,8 +63,8 @@ Prediction GoKartInference::predict(const cv::Mat& frame) {
     try {
         torch::Tensor input = prepcessFrame(frame);
 
-
         std::vector<torch::jit::IValue> inputs;
+        inputs.emplace_back(input);
 
         auto output = model_.forward(inputs).toTuple();
 
@@ -97,6 +97,7 @@ Prediction GoKartInference::predict(const cv::Mat& frame) {
         auto point_idx_tensor = std::get<1>(point_max_result);
 
         auto point_idx = point_idx_tensor.cpu().item<int>();
+        //TODO: Need to revise this so is not using None in any way whatsoever. Although im pretty sure I skipped that
 
         std::vector<std::string> point_types = {"None", "Turn_in", "Apex", "Exit"};
         result.point_type = point_types[point_idx];

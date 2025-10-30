@@ -60,7 +60,7 @@ class GoKartCoachModel(nn.Module):
 
 model = GoKartCoachModel(model_nam = "facebook/dinov3-vitl16-pretrain-lvd1689m")
 
-model.load_state_dict(torch.load("model/best_model.pth"))
+model.load_state_dict(torch.load("model/best_model_v2.pth"))
 model.eval()
 model.cuda()
 
