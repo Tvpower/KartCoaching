@@ -4,20 +4,32 @@ from torch.nn import CrossEntropyLoss, MSELoss
 from sklearn.model_selection import train_test_split
 from torch.utils.data import DataLoader
 from transformers import AutoImageProcessor
+from collections import Counter
 
-from createDataset import GoKartDataset
+from data.createDataset import GoKartDataset
 from model.coachModel import GoKartCoachModel
 
 # setup
 processor = AutoImageProcessor.from_pretrained("facebook/dinov3-vitl16-pretrain-lvd1689m")
-dataset = GoKartDataset("data/annotations/default.json", "data/annotations", processor)
+dataset = GoKartDataset("data/annotations/default.json", "data/images", processor)
 
 # Train/val split (80/20)
 indices = list(range(len(dataset)))
 train_idx, val_idx = train_test_split(indices, test_size=0.2, random_state=42)
 
+# TODO:  Initialize torch kernels from the beginning so training is not so slow
+# Need to revise ways to multithread the training as well 10/sec per epoc is way too slow for my liking tbh
+
 train_dataset = torch.utils.data.Subset(dataset, train_idx)
 val_dataset = torch.utils.data.Subset(dataset, val_idx)
+
+point_counter = Counter()
+curve_counter = Counter()
+
+for i in train_idx:
+    sample = dataset[i]
+    print (f"samples {sample}")
+
 
 train_loader = DataLoader(train_dataset, batch_size=16, shuffle=True, num_workers=4)
 val_loader = DataLoader(val_dataset, batch_size=16, shuffle=False, num_workers=4)
@@ -76,6 +88,8 @@ for epoch in range(num_epochs):
     correct_curve = 0
     total = 0
 
+
+    #TODO:
     # I know this is the validation loop which duplicated the training one. Its 12:42 am so Ill work on fixing this tmr
 
     with torch.no_grad():

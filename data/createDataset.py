@@ -86,7 +86,7 @@ class GoKartDataset(Dataset):
         item = self.data[idx]
         
         # Load and process image
-        img_path = os.path.join("data/images/default", item['img_path'])
+        img_path = os.path.join(self.images_dir, "default" , item['img_path'])
         image = Image.open(img_path).convert('RGB')
         pixel_values = self.processor(image, return_tensors="pt")['pixel_values'].squeeze(0)
         

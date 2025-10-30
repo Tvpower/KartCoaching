@@ -148,7 +148,7 @@ The `createDataset.py` module provides the `GoKartDataset` class:
 
 ```python
 from transformers import AutoImageProcessor
-from createDataset import GoKartDataset
+from data.createDataset import GoKartDataset
 
 processor = AutoImageProcessor.from_pretrained("facebook/dinov3-vitl16-pretrain-lvd1689m")
 dataset = GoKartDataset("data/annotations/default.json", "data/annotations", processor)

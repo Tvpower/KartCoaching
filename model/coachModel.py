@@ -3,7 +3,7 @@ from transformers import AutoModel
 import torch
 
 class GoKartCoachModel(nn.Module):
-    def __init__(self, feature_dim = 1024):
+    def __init__(self, model_name, feature_dim = 1024):
         super().__init__()
 
         # Load frozen DinoV3-ViT-L/16
@@ -14,7 +14,7 @@ class GoKartCoachModel(nn.Module):
         # especially when we have more data and understand more deeply the current approach. :3
 
         self.dinov3 = AutoModel.from_pretrained(
-            "facebook/dinov3-vitl16-pretrain-lvd1689m"
+            model_name
         )
         for param in self.dinov3.parameters():
             param.requires_grad = False
