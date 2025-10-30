@@ -9,7 +9,7 @@ This project combines a frozen DINOv3 vision transformer backbone with a custom 
 ## Model Architecture
 
 ### Backbone
-- **Base Model**: DINOv2 ViT-L/16 (`facebook/dinov3-vitl16-pretrain-lvd1689m`)
+- **Base Model**: DINOv3 ViT-L/16 (`facebook/dinov3-vitl16-pretrain-lvd1689m`)
 - **Feature Dimension**: 1024-dimensional CLS token embeddings
 - **Training Strategy**: Frozen backbone (transfer learning)
 - **Input Size**: 224x224 (training), 518x518 (inference)
